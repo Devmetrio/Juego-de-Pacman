@@ -30,6 +30,7 @@ let ghosts = [];
 let wallSpaceWidth = oneBlockSize / 1.6;
 let wallOffset = (oneBlockSize - wallSpaceWidth) / 2;
 let wallInnerColor = "black";
+let foodCount = 0;
 
 // we now create the map of the walls,
 // if 1 wall, if 0 not wall
@@ -45,7 +46,7 @@ let map = [
     [1, 1, 1, 1, 1, 2, 1, 1, 1, 2, 1, 2, 1, 1, 1, 2, 1, 1, 1, 1, 1],
     [0, 0, 0, 0, 1, 2, 1, 2, 2, 2, 2, 2, 2, 2, 1, 2, 1, 0, 0, 0, 0],
     [1, 1, 1, 1, 1, 2, 1, 2, 1, 1, 2, 1, 1, 2, 1, 2, 1, 1, 1, 1, 1],
-    [2, 2, 2, 2, 2, 2, 2, 2, 1, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 2, 2],
+    [1, 2, 2, 2, 2, 2, 2, 2, 1, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 2, 1],
     [1, 1, 1, 1, 1, 2, 1, 2, 1, 2, 2, 2, 1, 2, 1, 2, 1, 1, 1, 1, 1],
     [0, 0, 0, 0, 1, 2, 1, 2, 1, 1, 1, 1, 1, 2, 1, 2, 1, 0, 0, 0, 0],
     [0, 0, 0, 0, 1, 2, 1, 2, 2, 2, 2, 2, 2, 2, 1, 2, 1, 0, 0, 0, 0],
@@ -60,6 +61,14 @@ let map = [
     [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
 ];
 
+for (let i = 0; i < map.length; i++) {
+    for (let j = 0; j < map[0].length; j++) {
+        if(map[i][j]==2){
+            foodCount++;
+        }
+    }
+}
+
 let randomTargetsForGhosts = [
     { x: 1 * oneBlockSize, y: 1 * oneBlockSize },
     { x: 1 * oneBlockSize, y: (map.length - 2) * oneBlockSize },
@@ -69,12 +78,6 @@ let randomTargetsForGhosts = [
         y: (map.length - 2) * oneBlockSize,
     },
 ];
-
-// for (let i = 0; i < map.length; i++) {
-//     for (let j = 0; j < map[0].length; j++) {
-//         map[i][j] = 2;
-//     }
-// }
 
 let createNewPacman = () => {
     pacman = new Pacman(
@@ -102,17 +105,43 @@ let onGhostCollision = () => {
     lives--;
     restartPacmanAndGhosts();
     if (lives == 0) {
+        gameover();
     }
 };
+
+let gameover = () => {
+    drawGameOver();
+    clearInterval(gameInterval);
+}
 
 let update = () => {
     pacman.moveProcess();
     pacman.eat();
-    updateGhosts();
+    for (let i = 0; i < ghosts.length; i++) {
+        ghosts[i].moveProcess();
+    }
+
     if (pacman.checkGhostCollision(ghosts)) {
         onGhostCollision();
     }
+    if(score >= foodCount){
+        drawWin();
+        clearInterval(gameInterval);
+    }
 };
+
+let drawGameOver = () => {
+    canvasContext.font = "20px Emulogic";
+    canvasContext.fillStyle = "white";
+    canvasContext.fillText("Game Over!!",100,200);
+    console.log("Game over")
+}
+
+let drawWin = () => {
+    canvasContext.font = "20px Emulogic";
+    canvasContext.fillStyle = "white";
+    canvasContext.fillText("You win, so eggcellent", 100, 200);
+}
 
 let drawFoods = () => {
     for (let i = 0; i < map.length; i++) {
@@ -133,7 +162,7 @@ let drawFoods = () => {
 let drawRemainingLives = () => {
     canvasContext.font = "20px Emulogic";
     canvasContext.fillStyle = "white";
-    canvasContext.fillText("Lives: ", 220, oneBlockSize * (map.length + 1));
+    canvasContext.fillText("Lives: ", 220, oneBlockSize * (map.length + 1)+10);
 
     for (let i = 0; i < lives; i++) {
         canvasContext.drawImage(
@@ -143,7 +172,7 @@ let drawRemainingLives = () => {
             oneBlockSize,
             oneBlockSize,
             350 + i * oneBlockSize,
-            oneBlockSize * map.length + 2,
+            oneBlockSize * map.length + 10,
             oneBlockSize,
             oneBlockSize
         );
@@ -156,7 +185,7 @@ let drawScore = () => {
     canvasContext.fillText(
         "Score: " + score,
         0,
-        oneBlockSize * (map.length + 1)
+        oneBlockSize * (map.length + 1)+10
     );
 };
 
@@ -169,6 +198,11 @@ let draw = () => {
     pacman.draw();
     drawScore();
     drawRemainingLives();
+    if (lives <= 0) {
+        drawGameOver();
+    } else if (score >= foodCount) {
+        drawWin();
+    }
 };
 
 let drawWalls = () => {
@@ -228,7 +262,7 @@ let drawWalls = () => {
 
 let createGhosts = () => {
     ghosts = [];
-    for (let i = 0; i < ghostCount * 2; i++) {
+    for (let i = 0; i < ghostCount; i++) {
         let newGhost = new Ghost(
             9 * oneBlockSize + (i % 2 == 0 ? 0 : 1) * oneBlockSize,
             10 * oneBlockSize + (i % 2 == 0 ? 0 : 1) * oneBlockSize,

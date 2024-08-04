@@ -1,16 +1,5 @@
 class Ghost {
-    constructor(
-        x,
-        y,
-        width,
-        height,
-        speed,
-        imageX,
-        imageY,
-        imageWidth,
-        imageHeight,
-        range
-    ) {
+    constructor(x,y,width,height,speed,imageX,imageY,imageWidth,imageHeight,range) {
         this.x = x;
         this.y = y;
         this.width = width;
@@ -42,8 +31,7 @@ class Ghost {
     }
 
     changeRandomDirection() {
-        let addition = 1;
-        this.randomTargetIndex += addition;
+        this.randomTargetIndex += parseInt(Math.random() * 4);
         this.randomTargetIndex = this.randomTargetIndex % 4;
     }
 
@@ -147,7 +135,7 @@ class Ghost {
         } else {
             this.moveBackwards();
         }
-        console.log(this.direction);
+        // console.log(this.direction);
     }
 
     calculateNewDirection(map, destX, destY) {
@@ -264,16 +252,18 @@ class Ghost {
             this.height
         );
         canvasContext.restore();
-        canvasContext.beginPath();
-        canvasContext.strokeStyle = "red";
-        canvasContext.arc(
-            this.x + oneBlockSize / 2,
-            this.y + oneBlockSize / 2,
-            this.range * oneBlockSize,
-            0,
-            2 * Math.PI
-        );
-        canvasContext.stroke();
+
+        // TO SHOW THE RANGE OF THE GHOSTS:
+        // canvasContext.beginPath();
+        // canvasContext.strokeStyle = "red";
+        // canvasContext.arc(
+        //     this.x + oneBlockSize / 2,
+        //     this.y + oneBlockSize / 2,
+        //     this.range * oneBlockSize,
+        //     0,
+        //     2 * Math.PI
+        // );
+        // canvasContext.stroke();
     }
 }
 
